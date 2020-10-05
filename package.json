@@ -26,7 +26,12 @@
     "mapCoverage": true
   },
   "dependencies": {
+    "@babel/core": "^7.11.6",
+    "@babel/preset-env": "^7.11.5",
+    "@babel/preset-typescript": "^7.10.4",
+    "@types/webpack": "^4.41.22",
     "apollo-server-lambda": "^2.17.0",
+    "cache-loader": "^4.1.0",
     "dotenv": "^8.2.0",
     "graphql": "^15.3.0",
     "graphql-tag": "^2.11.0",
@@ -51,7 +56,7 @@
     "eslint-plugin-prettier": "^3.1.4",
     "jest": "^26.4.2",
     "prettier": "^2.1.2",
-    "serverless-offline": "^6.7.0",
+    "serverless-offline": "^6.8.0",
     "serverless-webpack": "^5.3.5",
     "ts-jest": "^26.4.0",
     "ts-loader": "^8.0.4",
