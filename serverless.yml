@@ -5,7 +5,15 @@ provider:
   runtime: nodejs12.x
   stage: dev
   region: us-east-1
+  environment: ${self:custom.${self:provider.stage}}
   iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:PutObjectAcl
+        - s3:GetObject
+        - s3:GetObjectAcl
+      Resource: 'arn:aws:s3:::${provider.environment.BUCKET}/*'
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -15,13 +23,20 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      Resource: 'arn:aws:dynamodb:us-east-1:*:table/*'
+      Resource: 'arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}'
 
 plugins:
   - serverless-webpack
   - serverless-offline
 
 custom:
+  bucket: ${self:service}-${self:provider.stage}
+  dev:
+    DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
+    BUCKET: ${self:custom.bucket}
+  prod:
+    DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
+    BUCKET: ${self:custom.bucket}
   serverless-offline:
     port: 4000
   webpackIncludeModules: true
