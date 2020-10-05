@@ -13,7 +13,7 @@ provider:
         - s3:PutObjectAcl
         - s3:GetObject
         - s3:GetObjectAcl
-      Resource: 'arn:aws:s3:::${provider.environment.BUCKET}/*'
+      Resource: 'arn:aws:s3:::${self:provider.environment.BUCKET}/*'
     - Effect: Allow
       Action:
         - dynamodb:Query
