@@ -38,7 +38,7 @@ custom:
     DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
     BUCKET: ${self:custom.bucket}
   serverless-offline:
-    port: 4000
+    httpPort: 4000
   webpackIncludeModules: true
   dynamodb:
     start:
