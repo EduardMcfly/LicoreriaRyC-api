@@ -3,7 +3,11 @@ const nodeExternals = require('webpack-node-externals');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const slsw = require('serverless-webpack');
 
-module.exports = {
+/**
+ * @type {import('webpack').Configuration}
+ */
+const config = {
+  mode: process.env.NODE_ENV || 'development',
   entry: slsw.lib.entries,
   target: 'node',
   externals: [nodeExternals()],
@@ -13,7 +17,21 @@ module.exports = {
     plugins: [new TsconfigPathsPlugin()],
   },
   module: {
-    rules: [{ test: /\.ts(x?)$/, loader: 'ts-loader' }],
+    rules: [
+      {
+        test: /\.(ts|js)x?$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'cache-loader',
+            options: {
+              cacheDirectory: path.resolve('.webpackCache'),
+            },
+          },
+          'babel-loader',
+        ],
+      },
+    ],
   },
   output: {
     libraryTarget: 'commonjs',
@@ -21,3 +39,5 @@ module.exports = {
     filename: '[name].js',
   },
 };
+
+module.exports = config;
