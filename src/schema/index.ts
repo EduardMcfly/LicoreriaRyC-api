@@ -1,5 +1,6 @@
 import { DocumentNode } from 'graphql';
 import { gql } from 'apollo-server-lambda';
+import products from './products';
 
 // Construct a schema, using GraphQL schema language
 const typeDefs = gql`
@@ -9,5 +10,5 @@ const typeDefs = gql`
   }
 `;
 
-const schema: DocumentNode[] = [typeDefs];
+const schema: DocumentNode[] = [typeDefs, products];
 export default schema;
