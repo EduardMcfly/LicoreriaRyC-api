@@ -30,6 +30,7 @@
     "@types/webpack": "^4.41.22",
     "apollo-server-lambda": "^2.17.0",
     "cache-loader": "^4.1.0",
+    "class-validator": "^0.13.1",
     "dotenv": "^8.2.0",
     "dynamoose": "^2.7.3",
     "graphql": "^15.5.0",
