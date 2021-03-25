@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
@@ -7,7 +8,7 @@ const slsw = require('serverless-webpack');
  * @type {import('webpack').Configuration}
  */
 const config = {
-  mode: process.env.NODE_ENV || 'development',
+  mode: 'development',
   entry: slsw.lib.entries,
   target: 'node',
   externals: [nodeExternals()],
@@ -28,16 +29,17 @@ const config = {
               cacheDirectory: path.resolve('.webpackCache'),
             },
           },
-          'babel-loader',
+          'ts-loader',
         ],
       },
     ],
   },
   output: {
-    libraryTarget: 'commonjs',
+    libraryTarget: 'commonjs-module',
     path: path.join(__dirname, '.webpack'),
     filename: '[name].js',
   },
+  devtool: 'source-map',
 };
 
 module.exports = config;
