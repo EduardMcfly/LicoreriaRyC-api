@@ -1,5 +1,8 @@
-import { IResolvers } from 'graphql-tools';
-import { bye } from './bye';
-import { hello } from './hello';
+import { buildSchemaSync } from 'type-graphql';
 
-export const resolvers: IResolvers[] = [hello, bye];
+import { HelloResolver } from './hello';
+import { ProductResolver } from './product';
+
+export const resolvers = buildSchemaSync({
+  resolvers: [HelloResolver, ProductResolver],
+});
