@@ -8,6 +8,7 @@
     "type": "git",
     "url": "git@github.com:EduardMcfly/LicoreriaRyC-api.git"
   },
+  "main": ".webpack/index.js",
   "scripts": {
     "test": "jest --no-cache --coverage",
     "start": "serverless offline start",
