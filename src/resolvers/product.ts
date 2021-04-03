@@ -7,9 +7,11 @@ import {
   InputType,
   Field,
 } from 'type-graphql';
+import { GraphQLUpload } from 'graphql-upload';
 
 import { Product, ProductModel } from '@entities';
 import { MaxLength, Max, Min } from 'class-validator';
+import { FileInput } from './common';
 
 @InputType()
 class ProductInput {
@@ -25,6 +27,9 @@ class ProductInput {
   @Min(1)
   @Max(1e8)
   price: number;
+
+  @Field(() => GraphQLUpload, { nullable: true })
+  image?: FileInput;
 }
 
 @Resolver(() => Product)
@@ -39,8 +44,10 @@ class ProductResolver {
   }
   @Mutation(() => Product)
   async createProduct(
-    @Arg('product') { name, description, price }: ProductInput,
+    @Arg('product') { name, description, price, image }: ProductInput,
   ) {
+    console.log(image);
+
     const product = await ProductModel.create({
       id: uuidv4(),
       description,
