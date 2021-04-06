@@ -30,3 +30,8 @@ export const getFileBucket = (Key: string) =>
       Key,
     })
     .promise();
+
+export const convertInt = (text: string): number | undefined => {
+  const number = parseInt(text);
+  return (!isNaN(number) && number) || undefined;
+};
