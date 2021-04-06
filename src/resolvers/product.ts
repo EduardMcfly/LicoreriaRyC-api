@@ -7,11 +7,11 @@ import {
   InputType,
   Field,
 } from 'type-graphql';
-import { GraphQLUpload } from 'graphql-upload';
+import { GraphQLUpload } from 'apollo-server-core';
+import { FileUpload } from '@apollographql/graphql-upload-8-fork';
+import { MaxLength, Max, Min } from 'class-validator';
 
 import { Product, ProductModel } from '@entities';
-import { MaxLength, Max, Min } from 'class-validator';
-import { FileInput } from './common';
 
 @InputType()
 class ProductInput {
@@ -29,7 +29,7 @@ class ProductInput {
   price: number;
 
   @Field(() => GraphQLUpload, { nullable: true })
-  image?: FileInput;
+  image?: FileUpload;
 }
 
 @Resolver(() => Product)
