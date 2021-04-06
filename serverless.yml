@@ -69,6 +69,13 @@ functions:
           path: graphql
           method: get
           cors: true
+  getImage:
+    handler: src/getImage.getImage
+    events:
+      - http:
+          path: getImage
+          method: get
+          cors: true
 
 resources:
   Resources:
