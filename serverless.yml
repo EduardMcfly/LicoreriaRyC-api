@@ -53,7 +53,10 @@ custom:
       port: 8000
       inMemory: true
       migrate: true
-
+  webpack:
+    packagerOptions:
+      scripts:
+        - npm uni sharp && npm i --arch=x64 --platform=linux sharp
 functions:
   graphql:
     handler: src/handler.index
