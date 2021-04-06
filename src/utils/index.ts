@@ -21,3 +21,12 @@ export const uploadS3 = ({
       console.log(e);
       throw e;
     });
+
+// fetch todo from the Bucket
+export const getFileBucket = (Key: string) =>
+  awsS3
+    .getObject({
+      Bucket: BUCKET,
+      Key,
+    })
+    .promise();
