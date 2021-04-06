@@ -1,3 +1,5 @@
+import { extname } from 'path';
+import { PassThrough } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
 import {
   Resolver,
@@ -12,6 +14,7 @@ import { FileUpload } from '@apollographql/graphql-upload-8-fork';
 import { MaxLength, Max, Min } from 'class-validator';
 
 import { Product, ProductModel } from '@entities';
+import { uploadS3 } from '../utils/index';
 
 @InputType()
 class ProductInput {
@@ -29,7 +32,7 @@ class ProductInput {
   price: number;
 
   @Field(() => GraphQLUpload, { nullable: true })
-  image?: FileUpload;
+  image?: Promise<FileUpload>;
 }
 
 @Resolver(() => Product)
@@ -46,13 +49,24 @@ class ProductResolver {
   async createProduct(
     @Arg('product') { name, description, price, image }: ProductInput,
   ) {
-    console.log(image);
+    const id = uuidv4();
+    let url: string | undefined = undefined;
+    if (image) {
+      const { filename, createReadStream } = await image;
+      const ext = extname(filename);
+      url = id + ext;
+      const stream = createReadStream();
+      const pass = new PassThrough();
+      stream.pipe(pass);
+      await uploadS3({ key: url, file: pass });
+    }
 
     const product = await ProductModel.create({
-      id: uuidv4(),
+      id,
       description,
       name,
       price,
+      image: url,
       creationDate: new Date(),
     });
     return product;
