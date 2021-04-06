@@ -39,6 +39,7 @@
     "graphql-tools": "^7.0.4",
     "jest-transform-graphql": "^2.1.0",
     "reflect-metadata": "^0.1.13",
+    "sharp": "^0.28.1",
     "type-graphql": "^1.1.1",
     "uuid": "^8.3.2"
   },
