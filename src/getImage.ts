@@ -37,6 +37,7 @@ export const getImage: APIGatewayProxyHandler = async ({
               statusCode: 200,
               headers: {
                 'Content-type': content,
+                'Content-Disposition': `inline; filename="${file}"`,
               },
               body: data.toString('base64'),
               isBase64Encoded: true,
