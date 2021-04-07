@@ -9,6 +9,19 @@ provider:
   lambdaHashingVersion: '20201221'
   apiGateway:
     shouldStartNameWithService: true
+    binaryMediaTypes:
+      - 'multipart/form-data'
+      - 'image/heic'
+      - 'image/heif'
+      - 'image/avif'
+      - 'image/jpeg'
+      - 'image/jpg'
+      - 'image/png'
+      - 'image/raw'
+      - 'image/tiff'
+      - 'image/webp'
+      - 'image/gif'
+      - '*/*'
   iam:
     role:
       statements:
