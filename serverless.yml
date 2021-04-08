@@ -21,7 +21,6 @@ provider:
       - 'image/tiff'
       - 'image/webp'
       - 'image/gif'
-      - '*/*'
   iam:
     role:
       statements:
