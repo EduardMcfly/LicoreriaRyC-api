@@ -3,5 +3,6 @@ declare namespace NodeJS {
     NODE_ENV: 'development' | 'production' | 'test';
     DYNAMODB_TABLE: string;
     BUCKET: string;
+    CORS: string;
   }
 }
