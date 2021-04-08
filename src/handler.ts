@@ -8,9 +8,11 @@ const server = new ApolloServer({
   schema: resolvers,
 });
 
+const { CORS } = process.env;
+
 const handler = server.createHandler({
   cors: {
-    origin: true,
+    origin: (CORS || '').split(','),
     credentials: true,
   },
   uploadsConfig: { maxFileSize: 10000, maxFiles: 10 },
