@@ -55,7 +55,7 @@ custom:
   dev:
     DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
     BUCKET: ${self:custom.bucket}
-    CORS: http://localhost
+    CORS: '*'
   prod:
     DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
     BUCKET: ${self:custom.bucket}
