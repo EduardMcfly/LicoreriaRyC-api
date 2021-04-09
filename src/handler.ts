@@ -12,7 +12,7 @@ const { CORS } = process.env;
 
 const handler = server.createHandler({
   cors: {
-    origin: (CORS || '').split(','),
+    origin: CORS.match(/\|/) ? CORS.split('|') : CORS,
     credentials: true,
   },
   uploadsConfig: { maxFileSize: 10000, maxFiles: 10 },
