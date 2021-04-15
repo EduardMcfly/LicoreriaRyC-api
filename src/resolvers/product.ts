@@ -12,6 +12,7 @@ import {
 import { GraphQLUpload } from 'apollo-server-core';
 import { FileUpload } from '@apollographql/graphql-upload-8-fork';
 import { MaxLength, Max, Min } from 'class-validator';
+import fileType from 'file-type';
 
 import { Product, ProductModel } from '@entities';
 import { uploadS3 } from '../utils/index';
@@ -54,11 +55,25 @@ class ProductResolver {
   @Mutation(() => Product)
   async createProduct(
     @Arg('product')
-    { name, description, amount, price, image }: ProductInput,
+    {
+      name,
+      description,
+      amount,
+      price,
+      image,
+      imageUrl,
+    }: ProductInput,
   ) {
     const id = uuidv4();
     let url: string | undefined = undefined;
-    if (image) {
+    if (imageUrl) {
+      const file = await fetch(imageUrl).then((res) =>
+        res.arrayBuffer(),
+      );
+      const { ext } = await fileType.fromBuffer(file);
+      url = id + ext;
+      await uploadS3({ key: url, file });
+    } else if (image) {
       const { filename, createReadStream } = await image;
       const ext = extname(filename);
       url = id + ext;
