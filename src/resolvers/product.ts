@@ -36,6 +36,9 @@ class ProductInput {
 
   @Field(() => GraphQLUpload, { nullable: true })
   image?: Promise<FileUpload>;
+
+  @Field({ nullable: true })
+  imageUrl?: string;
 }
 
 @Resolver(() => Product)
