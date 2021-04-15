@@ -61,6 +61,7 @@ custom:
     CORS: https://www.licoreriaryc.com | http://*.licoreriaryc.com
   serverless-offline:
     httpPort: 4000
+    lambdaPort: 4002
   webpackIncludeModules: true
   dynamodb:
     start:
