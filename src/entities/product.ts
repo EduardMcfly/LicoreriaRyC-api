@@ -20,7 +20,7 @@ export class Product extends Document {
   image?: string;
 
   @Field({ nullable: true })
-  max?: number;
+  amount?: number;
 
   @Field()
   creationDate: Date;
@@ -40,7 +40,7 @@ export const ProductModel = dynamoose.model<Product>(
     description: String,
     price: Number,
     image: String,
-    max: Number,
+    amount: Number,
     creationDate: Date,
   },
 );
