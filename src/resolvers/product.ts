@@ -21,7 +21,7 @@ import { uploadS3 } from '../utils/index';
 @InputType()
 class ProductInput {
   @Field()
-  @MaxLength(30)
+  @MaxLength(100)
   name: string;
 
   @Field({ nullable: true })
