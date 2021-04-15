@@ -31,6 +31,9 @@ class ProductInput {
   @Max(1e8)
   price: number;
 
+  @Field()
+  amount: number;
+
   @Field(() => GraphQLUpload, { nullable: true })
   image?: Promise<FileUpload>;
 }
@@ -47,7 +50,8 @@ class ProductResolver {
   }
   @Mutation(() => Product)
   async createProduct(
-    @Arg('product') { name, description, price, image }: ProductInput,
+    @Arg('product')
+    { name, description, amount, price, image }: ProductInput,
   ) {
     const id = uuidv4();
     let url: string | undefined = undefined;
@@ -63,8 +67,9 @@ class ProductResolver {
 
     const product = await ProductModel.create({
       id,
-      description,
       name,
+      description,
+      amount,
       price,
       image: url,
       creationDate: new Date(),
@@ -74,12 +79,14 @@ class ProductResolver {
   @Mutation(() => Product)
   async editProduct(
     @Arg('id') id: string,
-    @Arg('product') { name, description, price }: ProductInput,
+    @Arg('product')
+    { name, description, amount, price }: ProductInput,
   ) {
     const product = await ProductModel.get(id);
     product.name = name;
-    product.price = price;
     product.description = description;
+    product.amount = amount;
+    product.price = price;
     await product.save();
     return product;
   }
