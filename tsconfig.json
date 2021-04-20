@@ -24,7 +24,8 @@
       "@schema": ["schema/index"],
       "@entities": ["entities/index"]
     },
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "strict": true
   },
   "exclude": [
     "node_modules",
