@@ -29,7 +29,7 @@ const config = {
               cacheDirectory: path.resolve('.webpackCache'),
             },
           },
-          'ts-loader',
+          { loader: 'ts-loader', options: { transpileOnly: true } },
         ],
       },
     ],
