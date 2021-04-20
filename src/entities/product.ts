@@ -13,6 +13,9 @@ export class Product extends Document {
   @Field({ nullable: true })
   description?: string;
 
+  @Field({ nullable: true })
+  category?: string;
+
   @Field()
   price: number;
 
@@ -41,6 +44,13 @@ export const ProductModel = dynamoose.model<Product>(
     price: Number,
     image: String,
     amount: Number,
+    category: {
+      type: String,
+      index: {
+        global: true,
+        rangeKey: 'name',
+      },
+    },
     creationDate: Date,
   },
 );
