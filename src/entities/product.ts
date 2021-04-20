@@ -5,10 +5,10 @@ import { Field, ObjectType, ID } from 'type-graphql';
 @ObjectType()
 export class Product extends Document {
   @Field(() => ID)
-  id: string;
+  id!: string;
 
   @Field()
-  name: string;
+  name!: string;
 
   @Field({ nullable: true })
   description?: string;
@@ -17,7 +17,7 @@ export class Product extends Document {
   category?: string;
 
   @Field()
-  price: number;
+  price!: number;
 
   @Field({ nullable: true })
   image?: string;
@@ -26,7 +26,7 @@ export class Product extends Document {
   amount?: number;
 
   @Field()
-  creationDate: Date;
+  creationDate!: Date;
 }
 
 export const ProductModel = dynamoose.model<Product>(
