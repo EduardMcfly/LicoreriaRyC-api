@@ -14,27 +14,36 @@ import { FileUpload } from '@apollographql/graphql-upload-8-fork';
 import { MaxLength, Max, Min } from 'class-validator';
 import fetch from 'node-fetch';
 import fileType from 'file-type';
+import { ObjectType } from 'type-graphql';
+import { SortOrder } from 'dynamoose/dist/General';
 
 import { Product, ProductModel } from '@entities';
 import { uploadS3 } from '../utils/index';
+import { PageInfo } from './common/objectTypes';
+import { Pagination } from './common/inputs';
+import {
+  DocumentRetriever,
+  DocumentRetrieverResponse,
+} from './common/types';
+import { OrderTypes } from '../constants';
 
 @InputType()
 class ProductInput {
   @Field()
   @MaxLength(100)
-  name: string;
+  name!: string;
 
   @Field({ nullable: true })
   @MaxLength(160)
-  description: string;
+  description!: string;
 
   @Field()
   @Min(1)
   @Max(1e8)
-  price: number;
+  price!: number;
 
   @Field()
-  amount: number;
+  amount!: number;
 
   @Field(() => GraphQLUpload, { nullable: true })
   image?: Promise<FileUpload>;
@@ -43,11 +52,59 @@ class ProductInput {
   imageUrl?: string;
 }
 
+@ObjectType()
+class ProductConnection {
+  @Field(() => [Product])
+  data!: Product[];
+  @Field(() => PageInfo)
+  cursor!: PageInfo;
+}
+
 @Resolver(() => Product)
 class ProductResolver {
-  @Query(() => [Product])
-  async products() {
-    return ProductModel.scan().all().exec();
+  @Query(() => ProductConnection)
+  async products(
+    @Arg('category', { nullable: true }) category?: string,
+    @Arg('pagination', { nullable: true })
+    pagination?: Pagination,
+  ): Promise<ProductConnection> {
+    const { after, limit = 10, direction } = { ...pagination };
+    let data: DocumentRetrieverResponse<Product>;
+    let count: number;
+
+    const getCount = async (
+      dr: DocumentRetriever<Product>,
+    ): Promise<number> => (await dr.count().exec()).count;
+
+    const exec = (dr: DocumentRetriever<Product>) => {
+      if (after)
+        dr = dr.startAt({
+          id: after,
+          ...(category && { category }),
+        });
+      return dr.limit(limit).exec();
+    };
+
+    if (category) {
+      const getDr = () => ProductModel.query('category').eq(category);
+      count = await getCount(getDr());
+      const sort =
+        direction === OrderTypes.Asc
+          ? SortOrder.ascending
+          : SortOrder.descending;
+
+      let dr = getDr().sort(sort);
+      data = await exec(dr);
+    } else {
+      const getDr = () => ProductModel.scan();
+      count = await getCount(getDr());
+      data = await exec(getDr());
+    }
+    const { lastKey } = data;
+    return {
+      data,
+      cursor: { count, after: lastKey && lastKey.id },
+    };
   }
   @Query(() => Product)
   async product(@Arg('id') id: string) {
