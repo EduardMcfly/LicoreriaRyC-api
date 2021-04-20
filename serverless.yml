@@ -58,7 +58,7 @@ custom:
   prod:
     DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
     BUCKET: ${self:custom.bucket}
-    CORS: https://www.licoreriaryc.com | http://*.licoreriaryc.com
+    CORS: https://www.licoreriaryc.com
   serverless-offline:
     httpPort: 4000
     lambdaPort: 4002
