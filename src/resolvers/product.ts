@@ -68,7 +68,9 @@ class ProductResolver {
     @Arg('pagination', { nullable: true })
     pagination?: Pagination,
   ): Promise<ProductConnection> {
-    const { after, limit = 10, direction } = { ...pagination };
+    const { after, limit = 10, direction = OrderTypes.Asc } = {
+      ...pagination,
+    };
     let data: DocumentRetrieverResponse<Product>;
     let count: number;
 
