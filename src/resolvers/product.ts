@@ -156,6 +156,14 @@ class ProductResolver {
     });
     return product;
   }
+
+  @Mutation(() => [Product])
+  async createProducts(
+    @Arg('products', () => [ProductInput]) products: ProductInput[],
+  ) {
+    return products.map((product) => this.createProduct(product));
+  }
+
   @Mutation(() => Product)
   async editProduct(
     @Arg('id') id: string,
