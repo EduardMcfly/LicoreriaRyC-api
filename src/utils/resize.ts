@@ -6,9 +6,11 @@ import sharp, {
 
 sharp.cache({ items: 20 });
 
+export type Format = keyof FormatEnum | AvailableFormatInfo;
+
 export interface PropsResize {
   file: Buffer | string;
-  format?: keyof FormatEnum | AvailableFormatInfo;
+  format?: Format;
   width?: number;
   height?: number;
 }
