@@ -11,7 +11,7 @@
   "main": ".webpack/index.js",
   "scripts": {
     "test": "jest --no-cache --coverage",
-    "start": "cross-env SLS_DEBUG=* node --inspect=9000 %USERPROFILE%\\AppData\\Roaming\\nvm\\v12.20.1\\node_modules\\serverless\\bin\\serverless offline start",
+    "start": "cross-env SLS_DEBUG=* node --inspect=9000 node_modules/serverless/bin/serverless.js offline start",
     "deploy-prod": "serverless --stage=production deploy",
     "generate": "graphql-codegen"
   },
@@ -38,6 +38,7 @@
     "graphql-tag": "^2.11.0",
     "graphql-tools": "^7.0.4",
     "reflect-metadata": "^0.1.13",
+    "serverless": "^2.43.0",
     "sharp": "^0.28.1",
     "type-graphql": "^1.1.1",
     "uuid": "^8.3.2"
