@@ -3,6 +3,7 @@ const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const slsw = require('serverless-webpack');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 /**
  * @type {import('webpack').Configuration}
@@ -13,10 +14,11 @@ const config = {
   target: 'node',
   externals: [nodeExternals()],
   resolve: {
-    extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
+    extensions: ['.js', '.json', '.ts'],
     enforceExtension: false,
     plugins: [new TsconfigPathsPlugin()],
   },
+  plugins: [new ESLintPlugin({ extensions: ['ts', 'js'] })],
   module: {
     rules: [
       {
@@ -29,13 +31,13 @@ const config = {
               cacheDirectory: path.resolve('.webpackCache'),
             },
           },
-          { loader: 'ts-loader', options: { transpileOnly: true } },
+          { loader: 'ts-loader' },
         ],
       },
     ],
   },
   output: {
-    libraryTarget: 'commonjs-module',
+    libraryTarget: 'commonjs',
     path: path.join(__dirname, '.webpack'),
     filename: '[name].js',
   },
