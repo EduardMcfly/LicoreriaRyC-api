@@ -4,8 +4,7 @@ env:
 extends:
   - google
   - 'plugin:@typescript-eslint/recommended'
-  - plugin:prettier/recommended
-  - prettier/@typescript-eslint
+  - prettier
 globals:
   Atomics: readonly
   SharedArrayBuffer: readonly
@@ -15,7 +14,6 @@ parserOptions:
   sourceType: module
 plugins:
   - prettier
-  - '@typescript-eslint'
 rules:
   {
     '@typescript-eslint/explicit-function-return-type': 'off',
