@@ -60,6 +60,7 @@
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
+    "eslint-webpack-plugin": "^2.5.4",
     "jest": "^27.0.1",
     "jest-transform-graphql": "^2.1.0",
     "prettier": "^2.3.0",
