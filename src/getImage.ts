@@ -2,7 +2,7 @@ import {
   APIGatewayProxyHandler,
   APIGatewayProxyResult,
 } from 'aws-lambda';
-import resize from 'utils/resize';
+import resize, { Format } from 'utils/resize';
 import { getFileBucket, convertInt } from 'utils';
 
 export const getImage: APIGatewayProxyHandler = async ({
@@ -11,7 +11,7 @@ export const getImage: APIGatewayProxyHandler = async ({
   if (!query)
     return { statusCode: 400, body: 'Parameters undefined' };
   const { file } = query;
-  const format = query.format as any;
+  const format = query.format as Format | undefined;
 
   // Parse to integer if possible
   const width = convertInt(query.width);
