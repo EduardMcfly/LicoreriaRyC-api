@@ -97,7 +97,7 @@ class ProductResolver {
           ? SortOrder.ascending
           : SortOrder.descending;
 
-      let dr = getDr().sort(sort);
+      const dr = getDr().sort(sort);
       data = await exec(dr);
     } else {
       const getDr = () => ProductModel.scan();
