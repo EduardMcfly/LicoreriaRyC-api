@@ -2,6 +2,8 @@ import dynamoose from 'dynamoose';
 import { Document } from 'dynamoose/dist/Document';
 import { Field, ObjectType, ID } from 'type-graphql';
 
+import { categorySchema, CategoryModel, Category } from './category';
+
 @ObjectType()
 export class Product extends Document {
   @Field(() => ID)
@@ -13,8 +15,8 @@ export class Product extends Document {
   @Field({ nullable: true })
   description?: string;
 
-  @Field({ nullable: true })
-  category?: string;
+  @Field(() => Category, { nullable: true })
+  category?: Category;
 
   @Field()
   price!: number;
@@ -45,10 +47,11 @@ export const ProductModel = dynamoose.model<Product>(
     image: String,
     amount: Number,
     category: {
-      type: String,
+      type: CategoryModel,
+      schema: categorySchema,
       index: {
-        global: true,
-        rangeKey: 'name',
+        name: 'categoryId',
+        project: true,
       },
     },
     creationDate: Date,
