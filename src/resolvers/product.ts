@@ -148,13 +148,13 @@ class ProductResolver {
       const file = await fetch(imageUrl).then((res) => res.buffer());
       const ext = (await fileType.fromBuffer(file))?.ext;
       if (ext) {
-        url = id + ext;
+        url = id + '.' + ext;
         await uploadS3({ key: url, file });
       }
     } else if (image) {
       const { filename, createReadStream } = await image;
       const ext = extname(filename);
-      url = id + ext;
+      url = id + '.' + ext;
       const stream = createReadStream();
       const pass = new PassThrough();
       stream.pipe(pass);
