@@ -1,14 +1,20 @@
 import dynamoose from 'dynamoose';
-import { Document } from 'dynamoose/dist/Document';
 import { Field, ObjectType, ID } from 'type-graphql';
+import { Document } from 'dynamoose/dist/Document';
 
 @ObjectType()
-export class Category extends Document {
+export class Category {
   @Field(() => ID)
   id!: string;
 
   @Field()
   name!: string;
+
+  @Field()
+  description!: string;
+
+  @Field({ nullable: true })
+  image?: string;
 }
 
 export const categorySchema = new dynamoose.Schema({
@@ -20,9 +26,11 @@ export const categorySchema = new dynamoose.Schema({
     },
   },
   name: String,
+  description: String,
+  image: String,
 });
 
-export const CategoryModel = dynamoose.model<Category>(
+export const CategoryModel = dynamoose.model<Category & Document>(
   process.env.CATEGORY_TABLE,
   categorySchema,
 );
