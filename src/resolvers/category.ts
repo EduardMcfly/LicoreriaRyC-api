@@ -86,7 +86,7 @@ class CategoryResolver {
   }
 
   @Mutation(() => [Category])
-  async createCategorys(
+  async createCategories(
     @Arg('categories', () => [CategoryInput])
     categories: CategoryInput[],
   ) {
