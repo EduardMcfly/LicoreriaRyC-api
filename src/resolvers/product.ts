@@ -8,6 +8,8 @@ import {
   Arg,
   InputType,
   Field,
+  FieldResolver,
+  Root,
 } from 'type-graphql';
 import {
   FileUpload,
@@ -20,7 +22,6 @@ import { ObjectType } from 'type-graphql';
 import { SortOrder } from 'dynamoose/dist/General';
 
 import { Product, ProductModel } from '@entities';
-import { uploadS3 } from '../utils/index';
 import { PageInfo } from './common/objectTypes';
 import { Pagination } from './common/inputs';
 import {
@@ -28,6 +29,8 @@ import {
   DocumentRetrieverResponse,
 } from './common/types';
 import { OrderTypes } from '../constants';
+import { uploadS3 } from '../utils';
+import { Category, CategoryModel } from '../entities/category';
 
 @InputType()
 class ProductInput {
@@ -52,6 +55,9 @@ class ProductInput {
 
   @Field({ nullable: true })
   imageUrl?: string;
+
+  @Field({ nullable: true })
+  category?: string;
 }
 
 @ObjectType()
@@ -70,9 +76,14 @@ class ProductResolver {
     @Arg('pagination', { nullable: true })
     pagination?: Pagination,
   ): Promise<ProductConnection> {
-    const { after, limit = 500, direction = OrderTypes.Asc } = {
+    const {
+      after,
+      limit = 500,
+      direction = OrderTypes.Asc,
+    } = {
       ...pagination,
     };
+
     let data: DocumentRetrieverResponse<Product>;
     let count: number;
 
@@ -90,7 +101,8 @@ class ProductResolver {
     };
 
     if (category) {
-      const getDr = () => ProductModel.query('category').eq(category);
+      const getDr = () =>
+        ProductModel.query('categoryId').eq(category);
       count = await getCount(getDr());
       const sort =
         direction === OrderTypes.Asc
@@ -105,15 +117,18 @@ class ProductResolver {
       data = await exec(getDr());
     }
     const { lastKey } = data;
+
     return {
       data,
       cursor: { count, after: lastKey && lastKey.id },
     };
   }
+
   @Query(() => Product)
   async product(@Arg('id') id: string) {
     return ProductModel.get(id);
   }
+
   @Mutation(() => Product)
   async createProduct(
     @Arg('product')
@@ -124,6 +139,7 @@ class ProductResolver {
       price,
       image,
       imageUrl,
+      category,
     }: ProductInput,
   ) {
     const id = uuidv4();
@@ -144,7 +160,8 @@ class ProductResolver {
       stream.pipe(pass);
       await uploadS3({ key: url, file: pass });
     }
-
+    let categoryModel: Category | undefined;
+    if (category) categoryModel = await CategoryModel.get(category);
     const product = await ProductModel.create({
       id,
       name,
@@ -153,6 +170,8 @@ class ProductResolver {
       price,
       image: url,
       creationDate: new Date(),
+      categoryId: categoryModel?.id,
+      category: categoryModel,
     });
     return product;
   }
@@ -168,16 +187,21 @@ class ProductResolver {
   async editProduct(
     @Arg('id') id: string,
     @Arg('product')
-    { name, description, amount, price }: ProductInput,
+    { name, description, amount, price, category }: ProductInput,
   ) {
     const product = await ProductModel.get(id);
     product.name = name;
     product.description = description;
     product.amount = amount;
     product.price = price;
+    let categoryModel: Category | undefined;
+    if (category) categoryModel = await CategoryModel.get(category);
+    product.category = categoryModel;
+    product.categoryId = categoryModel?.id;
     await product.save();
     return product;
   }
+
   @Mutation(() => Boolean)
   async deleteProduct(@Arg('id') id: string) {
     try {
@@ -186,6 +210,11 @@ class ProductResolver {
     } catch (error) {
       return false;
     }
+  }
+
+  @FieldResolver(() => Category, { nullable: true })
+  category(@Root() product: Product) {
+    return product.category;
   }
 }
 export { ProductResolver };
