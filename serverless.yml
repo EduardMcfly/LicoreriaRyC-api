@@ -113,7 +113,7 @@ resources:
           - AttributeName: id
             KeyType: HASH
         GlobalSecondaryIndexes:
-          - IndexName: categoryIdIndex
+          - IndexName: categoryId-index
             KeySchema:
               - AttributeName: categoryId
                 KeyType: HASH
