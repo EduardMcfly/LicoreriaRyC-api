@@ -55,7 +55,7 @@ class CategoryResolver {
 
   @Mutation(() => Category)
   async createCategory(
-    @Arg('product')
+    @Arg('category')
     { name, description, image, imageUrl }: CategoryInput,
   ) {
     const id = uuidv4();
