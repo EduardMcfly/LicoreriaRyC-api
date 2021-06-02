@@ -43,7 +43,8 @@ provider:
             - dynamodb:CreateTable
             - dynamodb:DescribeTable
           Resource:
-            - Fn::GetAtt: [ProductsTable, CategoryTable, Arn]
+            - Fn::GetAtt: [ProductsTable, Arn]
+            - Fn::GetAtt: [CategoryTable, Arn]
 
 plugins:
   - serverless-webpack
@@ -64,6 +65,7 @@ custom:
   serverless-offline:
     httpPort: 4000
     lambdaPort: 4002
+    useChildProcesses: true
   webpackIncludeModules: true
   dynamodb:
     start:
@@ -103,9 +105,22 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: categoryId
+            AttributeType: S
+          - AttributeName: creationDate
+            AttributeType: N
         KeySchema:
           - AttributeName: id
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: categoryIdIndex
+            KeySchema:
+              - AttributeName: categoryId
+                KeyType: HASH
+              - AttributeName: creationDate
+                KeyType: RANGE
+            Projection:
+              ProjectionType: 'ALL'
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.DYNAMODB_TABLE}
     CategoryTable:
