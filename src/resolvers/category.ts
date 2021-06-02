@@ -64,7 +64,7 @@ class CategoryResolver {
       const file = await fetch(imageUrl).then((res) => res.buffer());
       const ext = (await fileType.fromBuffer(file))?.ext;
       if (ext) {
-        url = id + ext;
+        url = id + '.' + ext;
         await uploadS3({ key: url, file });
       }
     } else if (image) {
