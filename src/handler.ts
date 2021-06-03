@@ -1,11 +1,27 @@
 import 'dotenv/config';
 import 'reflect-metadata';
-import { APIGatewayProxyHandler } from 'aws-lambda';
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyHandler,
+  Context,
+} from 'aws-lambda';
 import { ApolloServer } from 'apollo-server-lambda';
+
 import { resolvers } from '@resolvers';
+import * as loaders from './loaders';
+import { RequestContext } from './types';
+
+interface ApolloContext {
+  event: APIGatewayProxyEvent;
+  context: Context;
+}
 
 const server = new ApolloServer({
   schema: resolvers,
+  context: ({ context }: ApolloContext): RequestContext => ({
+    ...context,
+    loaders,
+  }),
 });
 
 const { CORS } = process.env;
