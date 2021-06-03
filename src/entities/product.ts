@@ -2,7 +2,7 @@ import dynamoose from 'dynamoose';
 import { Field, ObjectType, ID } from 'type-graphql';
 import { Document } from 'dynamoose/dist/Document';
 
-import { categorySchema, CategoryModel, Category } from './category';
+import { Category } from './category';
 
 @ObjectType()
 export class Product {
@@ -45,9 +45,9 @@ export const ProductModel = dynamoose.model<Product & Document>(
       },
     },
     name: String,
-    description: String,
+    description: { type: String, required: false },
     price: Number,
-    image: String,
+    image: { type: String, required: false },
     amount: Number,
     categoryId: {
       type: String,
@@ -55,10 +55,6 @@ export const ProductModel = dynamoose.model<Product & Document>(
         name: 'categoryId-index',
         global: true,
       },
-    },
-    category: {
-      type: CategoryModel,
-      schema: categorySchema,
     },
     creationDate: Date,
   },
