@@ -160,18 +160,18 @@ class ProductResolver {
       stream.pipe(pass);
       await uploadS3({ key: url, file: pass });
     }
-    let categoryModel: Category | undefined;
+    let categoryModel: (Category & Document) | undefined;
     if (category) categoryModel = await CategoryModel.get(category);
+
     const product = await ProductModel.create({
       id,
-      name,
+      name: name.toLowerCase(),
       description,
       amount,
       price,
       image: url,
-      creationDate: new Date(),
       categoryId: categoryModel?.id,
-      category: categoryModel,
+      creationDate: new Date(),
     });
     return product;
   }
@@ -190,13 +190,12 @@ class ProductResolver {
     { name, description, amount, price, category }: ProductInput,
   ) {
     const product = await ProductModel.get(id);
-    product.name = name;
+    product.name = name.toLowerCase();
     product.description = description;
     product.amount = amount;
     product.price = price;
     let categoryModel: Category | undefined;
     if (category) categoryModel = await CategoryModel.get(category);
-    product.category = categoryModel;
     product.categoryId = categoryModel?.id;
     await product.save();
     return product;
