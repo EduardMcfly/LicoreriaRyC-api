@@ -1,44 +1,44 @@
-import { extname } from 'path';
-import { PassThrough } from 'stream';
-import { v4 as uuidv4 } from 'uuid';
-import orderBy from 'lodash/orderBy';
-import {
-  Resolver,
-  Query,
-  Mutation,
-  Arg,
-  InputType,
-  Field,
-  FieldResolver,
-  Root,
-  ObjectType,
-  Ctx,
-} from 'type-graphql';
 import {
   FileUpload,
   GraphQLUpload,
 } from '@apollographql/graphql-upload-8-fork';
-import { MaxLength, Max, Min } from 'class-validator';
-import fetch from 'node-fetch';
-import fileType from 'file-type';
+import { Product, ProductModel } from '@entities';
+import { Max, MaxLength, Min } from 'class-validator';
+import { Document } from 'dynamoose/dist/Document';
+import { QueryResponse } from 'dynamoose/dist/DocumentRetriever';
 import {
   ObjectType as ObjectTypeDynamoose,
   SortOrder,
 } from 'dynamoose/dist/General';
-import { Document } from 'dynamoose/dist/Document';
-import { QueryResponse } from 'dynamoose/dist/DocumentRetriever';
-
-import { Product, ProductModel } from '@entities';
-import { PageInfo, After } from './common/objectTypes';
+import fileType from 'file-type';
+import orderBy from 'lodash/orderBy';
+import fetch from 'node-fetch';
+import { extname } from 'path';
+import { PassThrough } from 'stream';
+import {
+  Arg,
+  Ctx,
+  Field,
+  FieldResolver,
+  ID,
+  InputType,
+  Mutation,
+  ObjectType,
+  Query,
+  Resolver,
+  Root,
+} from 'type-graphql';
+import { v4 as uuidv4 } from 'uuid';
+import { OrderTypes } from '../constants';
+import { Category, CategoryModel } from '../entities/category';
+import { RequestContext } from '../types';
+import { uploadS3 } from '../utils';
 import { AfterInput, Pagination } from './common/inputs';
+import { After, PageInfo } from './common/objectTypes';
 import {
   DocumentRetriever,
   DocumentRetrieverResponse,
 } from './common/types';
-import { OrderTypes } from '../constants';
-import { uploadS3 } from '../utils';
-import { Category, CategoryModel } from '../entities/category';
-import { RequestContext } from '../types';
 
 @InputType()
 class ProductInput {
