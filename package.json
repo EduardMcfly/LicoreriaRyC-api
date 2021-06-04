@@ -28,7 +28,7 @@
     "mapCoverage": true
   },
   "dependencies": {
-    "apollo-server-lambda": "^2.24.1",
+    "apollo-server-lambda": "^2.25.0",
     "cache-loader": "^4.1.0",
     "class-validator": "^0.13.1",
     "dataloader": "^2.0.0",
