@@ -54,6 +54,7 @@ export const ProductModel = dynamoose.model<Product & Document>(
       index: {
         name: 'categoryId-index',
         global: true,
+        rangeKey: 'name',
       },
     },
     creationDate: Date,
