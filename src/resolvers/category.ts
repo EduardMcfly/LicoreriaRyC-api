@@ -49,7 +49,7 @@ class CategoryResolver {
   }
 
   @Query(() => Category)
-  async product(@Arg('id') id: string) {
+  async category(@Arg('id') id: string) {
     return CategoryModel.get(id);
   }
 
