@@ -276,8 +276,12 @@ class ProductResolver {
   }
 
   @FieldResolver(() => Category, { nullable: true })
-  category(@Root() product: Product) {
-    return product.category;
+  category(
+    @Root() { categoryId }: Product,
+    @Ctx() { loaders }: RequestContext,
+  ) {
+    if (categoryId) return loaders.categoryLoader.load(categoryId);
+    return null;
   }
 }
 export { ProductResolver };
