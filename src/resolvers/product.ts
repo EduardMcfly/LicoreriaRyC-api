@@ -189,7 +189,7 @@ class ProductResolver {
     };
   }
 
-  @Query(() => Product)
+  @Query(() => Product, { nullable: true })
   async product(@Arg('id', () => ID) id: string) {
     return ProductModel.get(id);
   }
