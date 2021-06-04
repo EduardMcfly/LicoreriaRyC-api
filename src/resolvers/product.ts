@@ -1,6 +1,7 @@
 import { extname } from 'path';
 import { PassThrough } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
+import orderBy from 'lodash/orderBy';
 import {
   Resolver,
   Query,
@@ -10,6 +11,8 @@ import {
   Field,
   FieldResolver,
   Root,
+  ObjectType,
+  Ctx,
 } from 'type-graphql';
 import {
   FileUpload,
@@ -18,12 +21,16 @@ import {
 import { MaxLength, Max, Min } from 'class-validator';
 import fetch from 'node-fetch';
 import fileType from 'file-type';
-import { ObjectType } from 'type-graphql';
-import { SortOrder } from 'dynamoose/dist/General';
+import {
+  ObjectType as ObjectTypeDynamoose,
+  SortOrder,
+} from 'dynamoose/dist/General';
+import { Document } from 'dynamoose/dist/Document';
+import { QueryResponse } from 'dynamoose/dist/DocumentRetriever';
 
 import { Product, ProductModel } from '@entities';
-import { PageInfo } from './common/objectTypes';
-import { Pagination } from './common/inputs';
+import { PageInfo, After } from './common/objectTypes';
+import { AfterInput, Pagination } from './common/inputs';
 import {
   DocumentRetriever,
   DocumentRetrieverResponse,
@@ -31,6 +38,7 @@ import {
 import { OrderTypes } from '../constants';
 import { uploadS3 } from '../utils';
 import { Category, CategoryModel } from '../entities/category';
+import { RequestContext } from '../types';
 
 @InputType()
 class ProductInput {
@@ -72,55 +80,111 @@ class ProductConnection {
 class ProductResolver {
   @Query(() => ProductConnection)
   async products(
-    @Arg('category', { nullable: true }) category?: string,
+    @Arg('category', { nullable: true }) categoryBase?: string,
+    @Arg('filter', { nullable: true }) filter?: string,
+    @Arg('categories', () => [String], { nullable: true })
+    categoriesBase?: string[],
     @Arg('pagination', { nullable: true })
     pagination?: Pagination,
   ): Promise<ProductConnection> {
     const {
       after,
+      arrayAfter: arrayAfterInput = [],
       limit = 500,
       direction = OrderTypes.Asc,
     } = {
       ...pagination,
     };
 
-    let data: DocumentRetrieverResponse<Product>;
+    const key = 'categoryId';
+
+    const categories: string[] = [];
+    if (categoriesBase instanceof Array)
+      categories.push(...categoriesBase);
+    const afterInputOne =
+      (after && {
+        id: after,
+      }) ||
+      undefined;
+    if (afterInputOne)
+      arrayAfterInput.push({
+        ...afterInputOne,
+        ...(categoryBase && { [key]: categoryBase }),
+      });
+    if (categoryBase) categories.push(categoryBase);
+
+    type Item = Product & Document;
+    type Data = DocumentRetrieverResponse<Item>;
+
+    let data: Item[];
     let count: number;
 
     const getCount = async (
-      dr: DocumentRetriever<Product>,
+      dr: DocumentRetriever<Item>,
     ): Promise<number> => (await dr.count().exec()).count;
 
-    const exec = (dr: DocumentRetriever<Product>) => {
-      if (after)
-        dr = dr.startAt({
-          id: after,
-          ...(category && { category }),
-        });
+    const exec = (
+      dr: DocumentRetriever<Item>,
+      afterInput?: AfterInput,
+    ): Promise<QueryResponse<Item>> => {
+      if (afterInput) dr = dr.startAt(afterInput);
       return dr.limit(limit).exec();
     };
 
-    if (category) {
-      const getDr = () =>
-        ProductModel.query('categoryId').eq(category);
-      count = await getCount(getDr());
-      const sort =
-        direction === OrderTypes.Asc
-          ? SortOrder.ascending
-          : SortOrder.descending;
+    const sort =
+      direction === OrderTypes.Asc
+        ? SortOrder.ascending
+        : SortOrder.descending;
 
-      const dr = getDr().sort(sort);
-      data = await exec(dr);
+    let lastKey: ObjectTypeDynamoose | undefined;
+    const arrayAfter: (After | undefined)[] = [];
+
+    const filterObj = filter
+      ? { name: { beginsWith: filter.toLowerCase() } }
+      : undefined;
+
+    if (categories.length) {
+      const getDr = async (category: string) => {
+        const base = { [key]: { eq: category } };
+        if (filterObj)
+          return ProductModel.query({ ...base, ...filterObj });
+        return ProductModel.query(base).sort(sort);
+      };
+      count = 0;
+      const dataCategories: Data[] = [];
+      for (const category of categories) {
+        count += await getCount(await getDr(category));
+        const dr = await getDr(category);
+        const afterInput = arrayAfterInput.find(
+          (obj) => obj[key] === category,
+        );
+        const dataCategory = await exec(dr, afterInput);
+        arrayAfter.push(dataCategory.lastKey);
+        dataCategories.push(dataCategory);
+      }
+      const array = dataCategories.reduce((p, c) => {
+        if (!p) return c;
+        p.push(...c);
+        return p;
+      });
+      lastKey = array.lastKey;
+
+      data = orderBy(
+        array,
+        ['name'],
+        [sort === SortOrder.ascending ? 'asc' : 'desc'],
+      );
     } else {
-      const getDr = () => ProductModel.scan();
+      const getDr = () => ProductModel.scan(filterObj);
       count = await getCount(getDr());
-      data = await exec(getDr());
+      const array = await exec(getDr(), afterInputOne);
+      data = array;
+      lastKey = array.lastKey;
     }
-    const { lastKey } = data;
 
     return {
       data,
-      cursor: { count, after: lastKey && lastKey.id },
+      cursor: { count, after: lastKey && lastKey.id, arrayAfter },
     };
   }
 
