@@ -9,9 +9,10 @@ export class CartResolver {
   async cartProducts(
     @Arg('products', () => [ID]) products: string[],
   ): Promise<Product[]> {
-    return Promise.all(
+    const data = await Promise.all(
       products.map((product) => ProductModel.get(product)),
     );
+    return data.filter((product) => product);
   }
 
   @Query(() => Product)
