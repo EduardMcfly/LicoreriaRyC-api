@@ -107,6 +107,8 @@ resources:
             AttributeType: S
           - AttributeName: categoryId
             AttributeType: S
+          - AttributeName: name  
+            AttributeType: S
           - AttributeName: creationDate
             AttributeType: N
         KeySchema:
@@ -117,7 +119,7 @@ resources:
             KeySchema:
               - AttributeName: categoryId
                 KeyType: HASH
-              - AttributeName: creationDate
+              - AttributeName: name
                 KeyType: RANGE
             Projection:
               ProjectionType: 'ALL'
