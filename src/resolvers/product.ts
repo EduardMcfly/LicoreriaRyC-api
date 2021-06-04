@@ -137,7 +137,7 @@ class ProductResolver {
         : SortOrder.descending;
 
     let lastKey: ObjectTypeDynamoose | undefined;
-    const arrayAfter: (After | undefined)[] = [];
+    const arrayAfter: After[] = [];
 
     const filterObj = filter
       ? { name: { beginsWith: filter.toLowerCase() } }
@@ -159,7 +159,8 @@ class ProductResolver {
           (obj) => obj[key] === category,
         );
         const dataCategory = await exec(dr, afterInput);
-        arrayAfter.push(dataCategory.lastKey);
+        if (dataCategory.lastKey)
+          arrayAfter.push(dataCategory.lastKey);
         dataCategories.push(dataCategory);
       }
       const array = dataCategories.reduce((p, c) => {
