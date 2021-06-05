@@ -5,6 +5,8 @@ const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const slsw = require('serverless-webpack');
 const ESLintPlugin = require('eslint-webpack-plugin');
 
+const { stage } = slsw.lib.options;
+
 /**
  * @type {import('webpack').Configuration}
  */
@@ -38,7 +40,7 @@ const config = {
   },
   output: {
     libraryTarget: 'commonjs',
-    path: path.join(__dirname, '.webpack'),
+    path: path.join(__dirname, '.webpack', stage || ''),
     filename: '[name].js',
   },
   devtool: 'source-map',
