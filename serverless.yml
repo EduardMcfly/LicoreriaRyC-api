@@ -59,7 +59,7 @@ custom:
     CORS: '*'
   prod:
     DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
-    CATEGORY_TABLE: ${self:service}-${self:provider.stage}
+    CATEGORY_TABLE: ${self:service}-category-${self:provider.stage}
     BUCKET: ${self:custom.bucket}
     CORS: https://www.licoreriaryc.com
   serverless-offline:
@@ -107,7 +107,7 @@ resources:
             AttributeType: S
           - AttributeName: categoryId
             AttributeType: S
-          - AttributeName: name  
+          - AttributeName: name
             AttributeType: S
           - AttributeName: creationDate
             AttributeType: N
