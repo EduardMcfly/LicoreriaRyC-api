@@ -263,23 +263,7 @@ class ProductResolver {
     }: ProductInput,
   ) {
     const id = uuidv4();
-    let url: string | undefined = undefined;
-    if (imageUrl) {
-      const file = await fetch(imageUrl).then((res) => res.buffer());
-      const ext = (await fileType.fromBuffer(file))?.ext;
-      if (ext) {
-        url = id + '.' + ext;
-        await uploadS3({ key: url, file });
-      }
-    } else if (image) {
-      const { filename, createReadStream } = await image;
-      const ext = extname(filename);
-      url = id + '.' + ext;
-      const stream = createReadStream();
-      const pass = new PassThrough();
-      stream.pipe(pass);
-      await uploadS3({ key: url, file: pass });
-    }
+    const url = await this.uploadImage(id, imageUrl, image);
     let categoryModel: (Category & Document) | undefined;
     if (category) categoryModel = await CategoryModel.get(category);
 
