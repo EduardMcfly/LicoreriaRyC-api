@@ -289,10 +289,11 @@ class ProductResolver {
   }
 
   @FieldResolver(() => Category, { nullable: true })
-  category(
-    @Root() { categoryId }: Product,
+  async category(
+    @Root() product: Product,
     @Ctx() { loaders }: RequestContext,
   ) {
+    const { categoryId } = product;
     if (categoryId) return loaders.categoryLoader.load(categoryId);
     return null;
   }
