@@ -57,6 +57,15 @@ export const ProductModel = dynamoose.model<Product & Document>(
         rangeKey: 'name',
       },
     },
+    category: {
+      type: Object,
+      schema: {
+        id: String,
+        name: String,
+        description: String,
+        image: String,
+      },
+    },
     creationDate: Date,
   },
 );
