@@ -292,9 +292,18 @@ class ProductResolver {
   async editProduct(
     @Arg('id') id: string,
     @Arg('product')
-    { name, description, amount, price, category }: ProductEditInput,
+    {
+      name,
+      description,
+      amount,
+      price,
+      category,
+      image,
+      imageUrl,
+    }: ProductEditInput,
   ) {
     const product = await ProductModel.get(id);
+    if (!product) throw new Error("The product don't exist");
     if (name) product.name = name.toLowerCase();
     if (description) product.description = description;
     if (amount) product.amount = amount;
@@ -306,6 +315,8 @@ class ProductResolver {
         product.categoryId = categoryModel.id;
       }
     }
+    const url = await this.uploadImage(product.id, imageUrl, image);
+    if (url) product.image = url;
     await product.save();
     return product;
   }
