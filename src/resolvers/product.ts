@@ -43,22 +43,10 @@ import {
 } from './common/types';
 
 @InputType()
-class ProductInput {
-  @Field()
-  @MaxLength(100)
-  name!: string;
-
+class ProductInputBase {
   @Field({ nullable: true })
   @MaxLength(160)
   description!: string;
-
-  @Field()
-  @Min(1)
-  @Max(1e8)
-  price!: number;
-
-  @Field()
-  amount!: number;
 
   @Field(() => GraphQLUpload, { nullable: true })
   image?: Promise<FileUpload>;
@@ -68,6 +56,36 @@ class ProductInput {
 
   @Field({ nullable: true })
   category?: string;
+}
+
+@InputType()
+class ProductInput extends ProductInputBase {
+  @Field()
+  @MaxLength(100)
+  name!: string;
+
+  @Field()
+  @Min(1)
+  @Max(1e8)
+  price!: number;
+
+  @Field()
+  amount!: number;
+}
+
+@InputType()
+class ProductEditInput extends ProductInputBase {
+  @Field({ nullable: true })
+  @MaxLength(100)
+  name!: string;
+
+  @Field({ nullable: true })
+  @Min(1)
+  @Max(1e8)
+  price!: number;
+
+  @Field({ nullable: true })
+  amount!: number;
 }
 
 @ObjectType()
