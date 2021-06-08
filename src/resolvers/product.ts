@@ -292,16 +292,20 @@ class ProductResolver {
   async editProduct(
     @Arg('id') id: string,
     @Arg('product')
-    { name, description, amount, price, category }: ProductInput,
+    { name, description, amount, price, category }: ProductEditInput,
   ) {
     const product = await ProductModel.get(id);
-    product.name = name.toLowerCase();
-    product.description = description;
-    product.amount = amount;
-    product.price = price;
-    let categoryModel: Category | undefined;
-    if (category) categoryModel = await CategoryModel.get(category);
-    product.categoryId = categoryModel?.id;
+    if (name) product.name = name.toLowerCase();
+    if (description) product.description = description;
+    if (amount) product.amount = amount;
+    if (price) product.price = price;
+    if (category) {
+      const categoryModel = await CategoryModel.get(category);
+      if (categoryModel) {
+        product.category = { ...categoryModel };
+        product.categoryId = categoryModel.id;
+      }
+    }
     await product.save();
     return product;
   }
