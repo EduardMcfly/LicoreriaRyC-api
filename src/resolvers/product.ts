@@ -274,6 +274,7 @@ class ProductResolver {
       amount,
       price,
       image: url,
+      category: categoryModel && { ...categoryModel },
       categoryId: categoryModel?.id,
       creationDate: new Date(),
     });
