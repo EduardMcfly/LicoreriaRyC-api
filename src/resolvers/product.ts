@@ -224,6 +224,31 @@ class ProductResolver {
     return ProductModel.get(id);
   }
 
+  private async uploadImage(
+    id: string,
+    imageUrl: string | undefined,
+    image: Promise<FileUpload> | undefined,
+  ) {
+    let url: string | undefined;
+    if (imageUrl) {
+      const file = await fetch(imageUrl).then((res) => res.buffer());
+      const ext = (await fileType.fromBuffer(file))?.ext;
+      if (ext) {
+        url = id + '.' + ext;
+        await uploadS3({ key: url, file });
+      }
+    } else if (image) {
+      const { filename, createReadStream } = await image;
+      const ext = extname(filename);
+      url = id + '.' + ext;
+      const stream = createReadStream();
+      const pass = new PassThrough();
+      stream.pipe(pass);
+      await uploadS3({ key: url, file: pass });
+    }
+    return url;
+  }
+
   @Mutation(() => Product)
   async createProduct(
     @Arg('product')
