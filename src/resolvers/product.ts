@@ -77,15 +77,15 @@ class ProductInput extends ProductInputBase {
 class ProductEditInput extends ProductInputBase {
   @Field({ nullable: true })
   @MaxLength(100)
-  name!: string;
+  name?: string;
 
   @Field({ nullable: true })
   @Min(1)
   @Max(1e8)
-  price!: number;
+  price?: number;
 
   @Field({ nullable: true })
-  amount!: number;
+  amount?: number;
 }
 
 @ObjectType()
