@@ -29,6 +29,8 @@ import {
   Root,
 } from 'type-graphql';
 import { v4 as uuidv4 } from 'uuid';
+import { Condition } from 'dynamoose/dist/Condition';
+
 import { OrderTypes } from '../constants';
 import { Category, CategoryModel } from '../entities/category';
 import { RequestContext } from '../types';
@@ -80,12 +82,14 @@ class ProductConnection {
 class ProductResolver {
   @Query(() => ProductConnection)
   async products(
-    @Arg('category', { nullable: true }) categoryBase?: string,
-    @Arg('filter', { nullable: true }) filter?: string,
+    @Arg('category', () => String, { nullable: true })
+    categoryBase: string | undefined,
+    @Arg('filter', () => String, { nullable: true })
+    filter: string | undefined,
     @Arg('categories', () => [String], { nullable: true })
-    categoriesBase?: string[],
-    @Arg('pagination', { nullable: true })
-    pagination?: Pagination,
+    categoriesBase: string[] | undefined,
+    @Arg('pagination', () => Pagination, { nullable: true })
+    pagination: Pagination | undefined,
   ): Promise<ProductConnection> {
     const {
       after,
@@ -139,8 +143,16 @@ class ProductResolver {
     let lastKey: ObjectTypeDynamoose | undefined;
     const arrayAfter: After[] = [];
 
+    const keyCondition: keyof Condition =
+      (categories.length && 'beginsWith') || 'contains';
+
     const filterObj = filter
-      ? { name: { beginsWith: filter.toLowerCase() } }
+      ? new Condition({
+          name: { [keyCondition]: filter.toLowerCase() },
+        })
+          .or()
+          .where('category.name')
+          [keyCondition](filter.toLowerCase())
       : undefined;
 
     if (categories.length) {
