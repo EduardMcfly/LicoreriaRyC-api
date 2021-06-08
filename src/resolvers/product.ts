@@ -29,7 +29,7 @@ import {
   Root,
 } from 'type-graphql';
 import { v4 as uuidv4 } from 'uuid';
-import { Condition } from 'dynamoose/dist/Condition';
+import { BasicOperators, Condition } from 'dynamoose/dist/Condition';
 
 import { OrderTypes } from '../constants';
 import { Category, CategoryModel } from '../entities/category';
@@ -150,7 +150,7 @@ class ProductResolver {
       afterInput?: AfterInput,
     ): Promise<QueryResponse<Item>> => {
       if (afterInput) dr = dr.startAt(afterInput);
-      return dr.limit(limit).exec();
+      return dr.limit(limit).all().exec();
     };
 
     const sort =
@@ -161,23 +161,30 @@ class ProductResolver {
     let lastKey: ObjectTypeDynamoose | undefined;
     const arrayAfter: After[] = [];
 
-    const keyCondition: keyof Condition =
-      (categories.length && 'beginsWith') || 'contains';
+    type Filters = BasicOperators<DocumentRetriever<Item> & Filters>;
 
-    const filterObj = filter
-      ? new Condition({
-          name: { [keyCondition]: filter.toLowerCase() },
-        })
-          .or()
-          .where('category.name')
-          [keyCondition](filter.toLowerCase())
-      : undefined;
+    const applyFilter = <T extends Filters>(
+      dr: T,
+      isQuery = false,
+    ) => {
+      if (filter) {
+        const keyCondition: keyof Condition =
+          (isQuery && 'beginsWith') || 'contains';
+        const name = filter.toLowerCase();
+        let newDr = dr.where('name')[keyCondition](name);
+        if (!isQuery) newDr = newDr.or();
+        if (!categories.length)
+          newDr = newDr.where('category.name')[keyCondition](name);
+        return newDr;
+      }
+      return dr;
+    };
 
     if (categories.length) {
       const getDr = async (category: string) => {
         const base = { [key]: { eq: category } };
-        if (filterObj)
-          return ProductModel.query({ ...base, ...filterObj });
+        if (filter)
+          return applyFilter(ProductModel.query({ ...base }), true);
         return ProductModel.query(base).sort(sort);
       };
       count = 0;
@@ -189,6 +196,8 @@ class ProductResolver {
           (obj) => obj[key] === category,
         );
         const dataCategory = await exec(dr, afterInput);
+        console.log(dataCategory);
+
         if (dataCategory.lastKey)
           arrayAfter.push(dataCategory.lastKey);
         dataCategories.push(dataCategory);
@@ -206,7 +215,7 @@ class ProductResolver {
         [sort === SortOrder.ascending ? 'asc' : 'desc'],
       );
     } else {
-      const getDr = () => ProductModel.scan(filterObj);
+      const getDr = () => applyFilter(ProductModel.scan());
       count = await getCount(getDr());
       const array = await exec(getDr(), afterInputOne);
       data = array;
