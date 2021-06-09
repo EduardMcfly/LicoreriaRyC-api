@@ -45,6 +45,7 @@ provider:
           Resource:
             - Fn::GetAtt: [ProductsTable, Arn]
             - Fn::GetAtt: [CategoryTable, Arn]
+            - Fn::GetAtt: [ProductOrders, Arn]
 
 plugins:
   - serverless-webpack
@@ -146,11 +147,7 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
-          - AttributeName: amount
-            AttributeType: N
           - AttributeName: orderDate
-            AttributeType: N
-          - AttributeName: deliveryDate
             AttributeType: N
         KeySchema:
           - AttributeName: id
