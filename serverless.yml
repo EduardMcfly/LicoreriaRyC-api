@@ -55,11 +55,13 @@ custom:
   dev:
     DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
     CATEGORY_TABLE: ${self:service}-category-${self:provider.stage}
+    PRODUCT_ORDERS: ${self:service}-orders-${self:provider.stage}
     BUCKET: ${self:custom.bucket}
     CORS: '*'
   prod:
     DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
     CATEGORY_TABLE: ${self:service}-category-${self:provider.stage}
+    PRODUCT_ORDERS: ${self:service}-orders-${self:provider.stage}
     BUCKET: ${self:custom.bucket}
     CORS: https://www.licoreriaryc.com
   serverless-offline:
@@ -137,6 +139,22 @@ resources:
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.CATEGORY_TABLE}
+    ProductOrders:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: amount
+            AttributeType: N
+          - AttributeName: totalPrice
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.PRODUCT_ORDERS}
     S3BucketOutputs:
       Type: AWS::S3::Bucket
       Properties:
