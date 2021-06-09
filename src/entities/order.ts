@@ -3,7 +3,7 @@ import { Field, ObjectType, ID, Float, Int } from 'type-graphql';
 import { Document } from 'dynamoose/dist/Document';
 
 @ObjectType()
-export class Location {
+export class OrderLocation {
   @Field(() => Float)
   lat!: number;
 
@@ -12,7 +12,7 @@ export class Location {
 }
 
 @ObjectType()
-export class ProductOrder {
+class ProductOrder {
   @Field(() => ID)
   id!: string;
 
@@ -24,15 +24,15 @@ export class ProductOrder {
 }
 
 @ObjectType()
-export class ProductsOrder {
+export class Order {
   @Field(() => ID)
   id!: string;
 
   @Field(() => [ProductOrder], { nullable: false })
   products!: ProductOrder[];
 
-  @Field(() => Location, { nullable: false })
-  location?: Location;
+  @Field(() => OrderLocation, { nullable: false })
+  location?: OrderLocation;
 
   @Field({ nullable: false })
   orderDate!: Date;
@@ -41,7 +41,7 @@ export class ProductsOrder {
   deliveryDate!: Date;
 }
 
-export const productOrderSchema = new dynamoose.Schema(
+export const orderSchema = new dynamoose.Schema(
   {
     id: {
       type: String,
@@ -79,6 +79,7 @@ export const productOrderSchema = new dynamoose.Schema(
   { timestamps: true },
 );
 
-export const ProductOrderModel = dynamoose.model<
-  ProductsOrder & Document
->(process.env.PRODUCT_ORDERS, productOrderSchema);
+export const OrderModel = dynamoose.model<Order & Document>(
+  process.env.ORDER_TABLE,
+  orderSchema,
+);
