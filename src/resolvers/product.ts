@@ -299,7 +299,7 @@ class ProductResolver {
 
   @Mutation(() => Product)
   async editProduct(
-    @Arg('id') id: string,
+    @Arg('id', () => ID) id: string,
     @Arg('product')
     {
       name,
