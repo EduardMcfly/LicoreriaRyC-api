@@ -1,17 +1,23 @@
-import { v4 as uuidv4 } from 'uuid';
 import {
-  Resolver,
-  Query,
-  Mutation,
   Arg,
-  InputType,
+  Args,
+  ArgsType,
+  Ctx,
   Field,
   FieldResolver,
+  Float,
+  ID,
+  InputType,
+  Int,
+  Mutation,
+  Query,
+  Resolver,
   Root,
 } from 'type-graphql';
+import { v4 as uuidv4 } from 'uuid';
 
-import { Order, OrderModel, Product, ProductModel } from '@entities';
-import { Float, ID, Int } from 'type-graphql';
+import { Order, ProductOrder } from '@entities';
+import { RequestContext } from '../types';
 
 @InputType()
 export class OrderLocationInput {
@@ -29,12 +35,10 @@ export class ProductOrderInput {
 
   @Field(() => Int)
   amount!: number;
-
-  @Field(() => Int)
-  unitPrice!: number;
 }
 
 @InputType()
+@ArgsType()
 class OrderInput {
   @Field(() => [ProductOrderInput], { nullable: false })
   products!: ProductOrderInput[];
@@ -67,49 +71,96 @@ class OrderInputEdit {
 @Resolver(() => Order)
 class OrderResolver {
   @Query(() => [Order])
-  async orders(): Promise<Order[]> {
-    const orders = await OrderModel.scan().exec();
+  async orders(
+    @Ctx() { entities }: RequestContext,
+  ): Promise<Order[]> {
+    const orders = await entities.OrderModel.scan().exec();
     return orders;
   }
 
   @Query(() => Order)
-  async order(@Arg('id', () => ID) id: string) {
-    return OrderModel.get(id);
+  async order(
+    @Arg('id', () => ID) id: string,
+    @Ctx() { entities }: RequestContext,
+  ) {
+    return entities.OrderModel.get(id);
   }
 
   @Mutation(() => Order)
   async createOrder(
-    @Arg('order')
-    { location, orderDate, products, deliveryDate }: OrderInput,
+    @Args()
+    {
+      location,
+      orderDate,
+      products: productsInput,
+      deliveryDate,
+    }: OrderInput,
+    @Ctx() { entities }: RequestContext,
   ) {
     const id = uuidv4();
+    const products = await this.getProducts(productsInput, entities);
 
-    const product = await OrderModel.create({
+    const order = await entities.OrderModel.create({
       id,
-      location,
+      location: { ...location },
       orderDate,
       products,
       deliveryDate,
     });
-    return product;
+    return order;
+  }
+
+  private async getProduct(
+    productInput: ProductOrderInput,
+    entities: RequestContext['entities'],
+  ): Promise<ProductOrder | null> {
+    const product = await entities.ProductModel.get(productInput.id);
+    if (!product) return null;
+
+    return {
+      ...productInput,
+      name: product.name,
+      unitPrice: product.price,
+    };
+  }
+
+  private getProducts(
+    productsInput: ProductOrderInput[],
+    entities: RequestContext['entities'],
+  ) {
+    return Promise.all(
+      productsInput.map((productInput) =>
+        this.getProduct(productInput, entities),
+      ),
+    ).then((res) =>
+      res.reduce<ProductOrder[]>((p, c) => (c ? [...p, c] : p), []),
+    );
   }
 
   @Mutation(() => [Order])
   async createCategories(
     @Arg('orders', () => [OrderInput])
     orders: OrderInput[],
+    @Ctx() context: RequestContext,
   ) {
-    return orders.map((order) => this.createOrder(order));
+    return orders.map((order) => this.createOrder(order, context));
   }
 
   @Mutation(() => Order)
   async editOrder(
     @Arg('id', () => ID) id: string,
     @Arg('product')
-    { products, location, orderDate, deliveryDate }: OrderInputEdit,
+    {
+      products: productsInput,
+      location,
+      orderDate,
+      deliveryDate,
+    }: OrderInputEdit,
+    @Ctx() { entities }: RequestContext,
   ) {
-    const order = await OrderModel.get(id);
+    const order = await entities.OrderModel.get(id);
     if (!order) throw new Error("The order don't exist");
+    const products = await this.getProducts(productsInput, entities);
     if (products) order.products = products;
     if (location) order.location = location;
     if (orderDate) order.orderDate = orderDate;
@@ -122,10 +173,13 @@ class OrderResolver {
   async addProductOrder(
     @Arg('id', () => ID) id: string,
     @Arg('product', () => ProductOrderInput)
-    product: ProductOrderInput,
+    productInput: ProductOrderInput,
+    @Ctx() { entities }: RequestContext,
   ) {
-    const order = await OrderModel.get(id);
+    const order = await entities.OrderModel.get(id);
     if (!order) throw new Error("The order don't exist");
+    const product = await this.getProduct(productInput, entities);
+    if (!product) throw new Error("The product don't exist");
     order.products.push(product);
     await order.save();
     return order;
@@ -137,8 +191,9 @@ class OrderResolver {
     @Arg('product', () => ID) productId: string,
     @Arg('amount', () => Int) amount: number,
     @Arg('unitPrice', () => Float) unitPrice: number,
+    @Ctx() { entities }: RequestContext,
   ) {
-    const order = await OrderModel.get(id);
+    const order = await entities.OrderModel.get(id);
     if (!order) throw new Error("The order don't exist");
     const product = order.products.find(
       (product) => product.id === productId,
@@ -154,8 +209,9 @@ class OrderResolver {
   async deleteProductOrder(
     @Arg('id', () => ID) id: string,
     @Arg('product', () => ID) productId: string,
+    @Ctx() { entities }: RequestContext,
   ) {
-    const order = await OrderModel.get(id);
+    const order = await entities.OrderModel.get(id);
     if (!order) throw new Error("The order don't exist");
     const productIndex = order.products.findIndex(
       (product) => product.id !== productId,
@@ -168,23 +224,21 @@ class OrderResolver {
   }
 
   @Mutation(() => Boolean)
-  async deleteOrder(@Arg('id', () => ID) id: string) {
+  async deleteOrder(
+    @Arg('id', () => ID) id: string,
+    @Ctx() { entities }: RequestContext,
+  ) {
     try {
-      await OrderModel.delete(id);
+      await entities.OrderModel.delete(id);
       return true;
     } catch (error) {
       return false;
     }
   }
 
-  @FieldResolver(() => [Product], { nullable: true })
+  @FieldResolver(() => [ProductOrder], { nullable: true })
   async products(@Root() order: Order) {
-    const products = await ProductModel.query('productOrderId')
-      .eq(order.id)
-      .exec();
-    console.log(products);
-
-    return products;
+    return order.products;
   }
 }
 export { OrderResolver };
