@@ -9,6 +9,7 @@ import { ApolloServer } from 'apollo-server-lambda';
 
 import { resolvers } from '@resolvers';
 import * as loaders from './loaders';
+import * as entities from './entities';
 import { RequestContext } from './types';
 
 interface ApolloContext {
@@ -21,6 +22,7 @@ const server = new ApolloServer({
   context: ({ context }: ApolloContext): RequestContext => ({
     ...context,
     loaders,
+    entities,
   }),
 });
 
