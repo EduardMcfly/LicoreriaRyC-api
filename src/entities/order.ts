@@ -17,7 +17,7 @@ export class ProductOrder {
   id!: string;
 
   @Field()
-  name?: string;
+  name!: string;
 
   @Field(() => Int)
   amount!: number;
@@ -46,14 +46,7 @@ export class Order {
 
 export const orderSchema = new dynamoose.Schema(
   {
-    id: {
-      type: String,
-      index: {
-        name: 'id-index',
-        global: true,
-        rangeKey: 'orderDate',
-      },
-    },
+    id: String,
     products: {
       type: Array,
       required: true,
