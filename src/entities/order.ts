@@ -12,9 +12,12 @@ export class OrderLocation {
 }
 
 @ObjectType()
-class ProductOrder {
+export class ProductOrder {
   @Field(() => ID)
   id!: string;
+
+  @Field()
+  name?: string;
 
   @Field(() => Int)
   amount!: number;
@@ -32,7 +35,7 @@ export class Order {
   products!: ProductOrder[];
 
   @Field(() => OrderLocation, { nullable: false })
-  location?: OrderLocation;
+  location!: OrderLocation;
 
   @Field({ nullable: false })
   orderDate!: Date;
@@ -59,6 +62,7 @@ export const orderSchema = new dynamoose.Schema(
           type: Object,
           schema: {
             id: String,
+            name: String,
             amount: Number,
             unitPrice: Number,
           },
