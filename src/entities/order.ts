@@ -34,6 +34,9 @@ export class Order {
   @Field(() => ID)
   id!: string;
 
+  @Field()
+  client!: string;
+
   @Field(() => [ProductOrder], { nullable: false })
   products!: ProductOrder[];
 
@@ -50,6 +53,7 @@ export class Order {
 export const orderSchema = new dynamoose.Schema(
   {
     id: String,
+    client: { type: String, required: true },
     products: {
       type: Array,
       required: true,
