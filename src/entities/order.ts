@@ -56,6 +56,7 @@ export const orderSchema = new dynamoose.Schema(
           schema: {
             id: String,
             name: String,
+            image: String,
             amount: Number,
             unitPrice: Number,
           },
