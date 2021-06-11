@@ -43,6 +43,9 @@ class OrderInput {
   @Field(() => [ProductOrderInput], { nullable: false })
   products!: ProductOrderInput[];
 
+  @Field({ nullable: false })
+  client!: string;
+
   @Field(() => OrderLocationInput, { nullable: false })
   location!: OrderLocationInput;
 
@@ -55,6 +58,9 @@ class OrderInput {
 
 @InputType()
 class OrderInputEdit {
+  @Field({ nullable: true })
+  client!: string;
+
   @Field(() => [ProductOrderInput], { nullable: true })
   products!: ProductOrderInput[];
 
@@ -90,6 +96,7 @@ class OrderResolver {
   async createOrder(
     @Args()
     {
+      client,
       location,
       orderDate,
       products: productsInput,
@@ -102,6 +109,7 @@ class OrderResolver {
 
     const order = await entities.OrderModel.create({
       id,
+      client,
       location: { ...location },
       orderDate,
       products,
@@ -159,6 +167,7 @@ class OrderResolver {
     @Arg('product')
     {
       products: productsInput,
+      client,
       location,
       orderDate,
       deliveryDate,
@@ -169,6 +178,7 @@ class OrderResolver {
     if (!order) throw new Error("The order don't exist");
     const products = await this.getProducts(productsInput, entities);
     if (products) order.products = products;
+    if (client) order.client = client;
     if (location) order.location = location;
     if (orderDate) order.orderDate = orderDate;
     if (deliveryDate) order.deliveryDate = deliveryDate;
