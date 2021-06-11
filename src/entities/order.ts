@@ -19,6 +19,9 @@ export class ProductOrder {
   @Field()
   name!: string;
 
+  @Field()
+  image?: string;
+
   @Field(() => Int)
   amount!: number;
 
