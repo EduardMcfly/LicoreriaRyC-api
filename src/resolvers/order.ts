@@ -126,6 +126,7 @@ class OrderResolver {
     return {
       ...productInput,
       name: product.name,
+      image: product.image,
       unitPrice: product.price,
     };
   }
