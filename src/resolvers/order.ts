@@ -107,6 +107,12 @@ class OrderResolver {
       products,
       deliveryDate,
     });
+
+    await order.conformToSchema({
+      customTypesDynamo: true,
+      type: 'fromDynamo',
+    });
+
     return order;
   }
 
@@ -166,6 +172,12 @@ class OrderResolver {
     if (orderDate) order.orderDate = orderDate;
     if (deliveryDate) order.deliveryDate = deliveryDate;
     await order.save();
+
+    await order.conformToSchema({
+      customTypesDynamo: true,
+      type: 'fromDynamo',
+    });
+
     return order;
   }
 
