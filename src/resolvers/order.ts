@@ -84,7 +84,7 @@ class OrderResolver {
     return orders;
   }
 
-  @Query(() => Order)
+  @Query(() => Order, { nullable: true })
   async order(
     @Arg('id', () => ID) id: string,
     @Ctx() { entities }: RequestContext,
