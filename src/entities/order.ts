@@ -19,7 +19,7 @@ export class ProductOrder {
   @Field()
   name!: string;
 
-  @Field()
+  @Field({ nullable: true })
   image?: string;
 
   @Field(() => Int)
