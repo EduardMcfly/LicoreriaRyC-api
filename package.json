@@ -41,6 +41,7 @@
     "reflect-metadata": "^0.1.13",
     "serverless": "^2.43.1",
     "sharp": "^0.28.3",
+    "twilio": "^3.66.0",
     "type-graphql": "^1.1.1",
     "uuid": "^8.3.2"
   },
