@@ -35,3 +35,20 @@ export const convertInt = (text?: string): number | undefined => {
   const number = (text && +text) || 0;
   return (!isNaN(number) && number) || undefined;
 };
+
+export const cleanURL = (url?: string) => {
+  if (!url) {
+    console.log('url is ' + typeof url);
+    return '';
+  }
+  return url.replace(/\/$/, '') + '/';
+};
+
+const { APP_URL } = process.env;
+export const generateAppRoute = (path: string) =>
+  cleanURL(APP_URL) + path.replace(/\//, '');
+
+export const generateOrderRoute = (order: string) => {
+  const url = generateAppRoute('/order/');
+  return url + order.replace(/\//, '');
+};
