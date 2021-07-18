@@ -17,6 +17,8 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 import { Order, ProductOrder } from '@entities';
+import { twilioClient } from 'utils/twilio';
+import { generateOrderRoute } from 'utils';
 import { RequestContext } from '../types';
 
 @InputType()
@@ -45,6 +47,9 @@ class OrderInput {
 
   @Field({ nullable: false })
   client!: string;
+
+  @Field({ nullable: true })
+  clientPhoneNumber?: string;
 
   @Field(() => OrderLocationInput, { nullable: false })
   location!: OrderLocationInput;
@@ -97,6 +102,7 @@ class OrderResolver {
     @Args()
     {
       client,
+      clientPhoneNumber,
       location,
       orderDate,
       products: productsInput,
@@ -119,6 +125,23 @@ class OrderResolver {
     await order.conformToSchema({
       customTypesDynamo: true,
       type: 'fromDynamo',
+    });
+
+    const { TWILIO_NUMBER, DOMICILIARY_NUMBER } = process.env;
+
+    let body = `${client} hizo un nuevo pedido\npedido: ${generateOrderRoute(
+      id,
+    )}`;
+    if (clientPhoneNumber) body += `\nTelefono: ${clientPhoneNumber}`;
+
+    const opts = {
+      from: `whatsapp:${TWILIO_NUMBER}`,
+      to: `whatsapp:${DOMICILIARY_NUMBER}`,
+      body,
+    };
+
+    await twilioClient.messages.create(opts).catch((error) => {
+      console.log(error);
     });
 
     return order;
