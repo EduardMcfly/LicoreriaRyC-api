@@ -21,4 +21,5 @@ rules:
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     require-jsdoc: 'off',
     new-cap: 'off',
+    prettier/prettier: 'error',
   }
