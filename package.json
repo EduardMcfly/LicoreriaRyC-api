@@ -68,7 +68,7 @@
     "jest": "^27.0.1",
     "jest-transform-graphql": "^2.1.0",
     "prettier": "^2.3.0",
-    "serverless-offline": "^7.0.0",
+    "serverless-offline": "^8.0.0",
     "serverless-webpack": "^5.5.0",
     "ts-jest": "^26.5.6",
     "ts-loader": "^9.2.2",
