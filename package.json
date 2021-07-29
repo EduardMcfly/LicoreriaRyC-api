@@ -40,6 +40,7 @@
     "graphql-tools": "^7.0.5",
     "reflect-metadata": "^0.1.13",
     "serverless": "^2.43.1",
+    "serverless-dotenv-plugin": "^3.9.0",
     "sharp": "^0.28.3",
     "twilio": "^3.66.0",
     "type-graphql": "^1.1.1",
