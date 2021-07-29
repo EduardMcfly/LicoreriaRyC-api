@@ -30,30 +30,26 @@ export const getImage: APIGatewayProxyHandler = async ({
         width,
         height,
       })
-        .then(
-          ({ data, info }): APIGatewayProxyResult => {
-            const content = `image/${info.format}`;
-            return {
-              statusCode: 200,
-              headers: {
-                'Content-type': content,
-                'Content-Disposition': `inline; filename="${file}"`,
-              },
-              body: data.toString('base64'),
-              isBase64Encoded: true,
-            };
-          },
-        )
-        .catch(
-          (e): APIGatewayProxyResult => {
-            const { message: body } = e;
-            console.log(e);
-            return {
-              statusCode: 500,
-              body,
-            };
-          },
-        );
+        .then(({ data, info }): APIGatewayProxyResult => {
+          const content = `image/${info.format}`;
+          return {
+            statusCode: 200,
+            headers: {
+              'Content-type': content,
+              'Content-Disposition': `inline; filename="${file}"`,
+            },
+            body: data.toString('base64'),
+            isBase64Encoded: true,
+          };
+        })
+        .catch((e): APIGatewayProxyResult => {
+          const { message: body } = e;
+          console.log(e);
+          return {
+            statusCode: 500,
+            body,
+          };
+        });
     else return { statusCode: 500, body: '' };
   }
 };
