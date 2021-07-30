@@ -16,7 +16,7 @@ import {
 } from 'type-graphql';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Order, ProductOrder } from '@entities';
+import { Order, ProductOrder } from 'entities';
 import { twilioClient } from 'utils/twilio';
 import { generateOrderRoute } from 'utils';
 import { RequestContext } from '../types';

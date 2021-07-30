@@ -2,9 +2,10 @@ import sharp, {
   AvailableFormatInfo,
   FormatEnum,
   OutputInfo,
+  cache,
 } from 'sharp';
 
-sharp.cache({ items: 20 });
+cache({ items: 20 });
 
 export type Format = keyof FormatEnum | AvailableFormatInfo;
 

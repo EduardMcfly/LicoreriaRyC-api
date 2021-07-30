@@ -1,5 +1,4 @@
-import { Resolver, Query, Arg } from 'type-graphql';
-import { ID } from 'type-graphql';
+import { Resolver, Query, Arg, ID } from 'type-graphql';
 
 import { Product, ProductModel } from '@entities';
 

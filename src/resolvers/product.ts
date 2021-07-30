@@ -10,7 +10,7 @@ import {
   ObjectType as ObjectTypeDynamoose,
   SortOrder,
 } from 'dynamoose/dist/General';
-import fileType from 'file-type';
+import { fromBuffer } from 'file-type';
 import orderBy from 'lodash/orderBy';
 import fetch from 'node-fetch';
 import { extname } from 'path';
@@ -241,7 +241,7 @@ class ProductResolver {
     let url: string | undefined;
     if (imageUrl) {
       const file = await fetch(imageUrl).then((res) => res.buffer());
-      const ext = (await fileType.fromBuffer(file))?.ext;
+      const ext = (await fromBuffer(file))?.ext;
       if (ext) {
         url = id + '.' + ext;
         await uploadS3({ key: url, file });
