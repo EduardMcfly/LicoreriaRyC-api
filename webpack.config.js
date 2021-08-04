@@ -26,15 +26,7 @@ const config = {
       {
         test: /\.(ts|js)x?$/,
         exclude: /node_modules/,
-        use: [
-          {
-            loader: 'cache-loader',
-            options: {
-              cacheDirectory: path.resolve('.webpackCache'),
-            },
-          },
-          { loader: 'ts-loader' },
-        ],
+        use: [{ loader: 'ts-loader' }],
       },
     ],
   },
@@ -44,6 +36,10 @@ const config = {
     filename: '[name].js',
   },
   devtool: 'source-map',
+  cache: {
+    type: 'filesystem',
+    cacheDirectory: path.resolve('.webpackCache'),
+  },
 };
 
 module.exports = config;
